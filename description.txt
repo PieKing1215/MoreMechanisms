@@ -1,0 +1,59 @@
+[i:530] More Mechanisms adds more mechanisms and sensors.
+
+[c/FFD366:Additions:]
+
+[i:3615] [c/66FF66:Entity Sensor] - Upgraded player sensor
+  Craft: [i/s1:3615][i/s10:549][i/s10:530][i/s5:1198] @ [i:35]
+  Works similarly to a player above sensor.
+  Right click when placed to configure the trigger zone and what type of entities trigger it.
+  
+[i:890] [c/66FF66:Speaker] - Plays sounds
+  Purchase from the Steampunker for [i/s20:73].
+  Plays a selected sound when powered.
+  Right click when placed to pick which sound to play and configure its options.
+  
+[i:48] [c/66FF66:Itemduct] - Automatically transfer items
+  *TBD: how to obtain
+  Hammer to cycle between duct, input, and output
+  Input takes items from connected inventories.
+  Output pushes items into connected inventories.
+  Right clicking on an Itemduct allows setting a filter for which items can enter it.
+  
+[i:388] [c/66FF66:Quarry] - Automatically mines blocks
+  *TBD: how to obtain
+  Placing Quarry Scaffold tiles in a rectangle designates the mining area.
+  Placing a Quarry adjacent to the scaffolding connects it to the area.
+  Right clicking on a Quarry allows entering a pickaxe to use and a filter for what to mine.
+  Activate with wire to turn the quarry on.
+  Any mined items will drop at the Quarry's position.
+  
+[i:158] [c/66FF66:Vacuum] - Picks up dropped items
+  *TBD: how to obtain
+  When placed, nearby items will be attracted and sucked up by the vacuum.
+  Adjacent "In" Itemducts can pull from the vacuum's internal inventory.
+  
+[i:1265] [c/66FF66:Turret] - Shoots enemies
+  *TBD: how to obtain
+  Right clicking allows you to place bullets in its inventory.
+  When enemies are within its range, the Turret will shoot them using the provided bullets.
+  *TODO: "Out" Itemducts can also output into a Turret.
+  
+[i:361] [c/66FF66:Invasion Sensor] - Detects invasions
+  Purchase from the Steampunker for 1[i/s1:74].
+  Sends a signal when an invasion starts and ends.
+  
+[i:1372] [c/66FF66:Blood Moon Sensor] - Detects blood moons
+  Purchase from the Steampunker for 1[i/s1:74].
+  Sends a signal when a blood moon starts and ends.
+  
+[i:2767] [c/66FF66:Solar Eclipse Sensor] - Detects eclipses
+  Purchase from the Steampunker for 1[i/s1:74].
+  Sends a signal when a solar eclipse starts and ends.
+  
+[c/FFD366:Changes:]
+
+[i:3611] [c/EAAE27:The Grand Design]
+  When The Grand Design is in your inventory, you gain an additional 12 inventory slots only for mechanisms.
+  *TODO: The right click radial menu also allows you to place other mechanisms.
+  
+  
