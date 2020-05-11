@@ -1609,8 +1609,8 @@ namespace MoreMechanisms {
                                     
                                     if (TileEntity.ByPosition.TryGetValue(new Point16(x, y), out tileEntity)) {
                                         TEEntitySensor es = tileEntity as TEEntitySensor;
-                                        Vector2 start = new Vector2((float)(x * 16 - 16 * es.left - 1), (float)(y * 16 - (16 * (es.top)) - 1)) + zero2;
-                                        Vector2 end = new Vector2((float)(x * 16 + 16 * (es.right + 1) + 1), (float)(y * 16 + 16 * (es.bottom + 1) + 1)) + zero2;
+                                        Vector2 start = new Vector2((float)(x * 16 - 16 * es.left - 1), (float)(y * 16 - (16 * (es.top)) - 1));
+                                        Vector2 end = new Vector2((float)(x * 16 + 16 * (es.right + 1) + 1), (float)(y * 16 + 16 * (es.bottom + 1) + 1));
                                         Utils.DrawRectangle(Main.spriteBatch, start, end, Microsoft.Xna.Framework.Color.LightSeaGreen, Microsoft.Xna.Framework.Color.LightSeaGreen, 2f);
                                     }
                                 }
@@ -1642,8 +1642,8 @@ namespace MoreMechanisms {
                                     if (TileEntity.ByPosition.TryGetValue(new Point16(x, y), out tileEntity)) {
                                         TEQuarry es = tileEntity as TEQuarry;
                                         if (es.hasFrame) {
-                                            Vector2 start = new Vector2((float)(x * 16 - 16 * (es.left - 1) - 8), (float)(y * 16 - (16 * (es.top - 1))) - 8) + zero2;
-                                            Vector2 end = new Vector2((float)(x * 16 + 16 * (es.right + 1) - 8), (float)(y * 16 + 16 * (es.bottom) + 1 + 8)) + zero2;
+                                            Vector2 start = new Vector2((float)(x * 16 - 16 * (es.left - 1) - 8), (float)(y * 16 - (16 * (es.top - 1))) - 8);
+                                            Vector2 end = new Vector2((float)(x * 16 + 16 * (es.right + 1) - 8), (float)(y * 16 + 16 * (es.bottom) + 1 + 8));
                                             Color col = Microsoft.Xna.Framework.Color.Yellow;
                                             Utils.DrawRectangle(Main.spriteBatch, start, end, col, col, 2f);
                                         }
