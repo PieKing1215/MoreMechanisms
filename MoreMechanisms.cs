@@ -1532,7 +1532,6 @@ namespace MoreMechanisms {
         
         public override void ModifyInterfaceLayers(List<GameInterfaceLayer> layers) {
             
-
             int mouseTextIndex = layers.FindIndex(layer => layer.Name.Equals("Vanilla: Mouse Text"));
             if (mouseTextIndex != -1) {
                 layers.Insert(mouseTextIndex, new LegacyGameInterfaceLayer(
@@ -1592,33 +1591,26 @@ namespace MoreMechanisms {
                 layers.Insert(wireIndex, new LegacyGameInterfaceLayer(
                     "MoreMechanisms: EntitySensorWire",
                     delegate {
-                        Vector2 zero2 = Vector2.Zero;
-                        int num21 = (int)((Main.screenPosition.X - zero2.X) / 16f - 1f);
-                        int num20 = (int)((Main.screenPosition.X + (float)Main.screenWidth + zero2.X) / 16f) + 2;
-                        int num19 = (int)((Main.screenPosition.Y - zero2.Y) / 16f - 1f);
-                        int num18 = (int)((Main.screenPosition.Y + (float)Main.screenHeight + zero2.Y) / 16f) + 5;
-                        if (num21 < 0) {
-                            num21 = 0;
-                        }
-                        if (num20 > Main.maxTilesX) {
-                            num20 = Main.maxTilesX;
-                        }
-                        if (num19 < 0) {
-                            num19 = 0;
-                        }
-                        if (num18 > Main.maxTilesY) {
-                            num18 = Main.maxTilesY;
-                        }
-                        for (int k = num19; k < num18; k++) {
-                            for (int i = num21; i < num20; i++) {
-                                Tile tile = Main.tile[i, k];
+                        int xMin = (int)((Main.screenPosition.X) / 16f - 1f);
+                        int xMax = (int)((Main.screenPosition.X + (float)Main.screenWidth) / 16f) + 2;
+                        int yMin = (int)((Main.screenPosition.Y) / 16f - 1f);
+                        int yMax = (int)((Main.screenPosition.Y + (float)Main.screenHeight) / 16f) + 5;
+
+                        if (xMin < 0) xMin = 0;
+                        if (xMax > Main.maxTilesX) xMax = Main.maxTilesX;
+                        if (yMin < 0) yMin = 0;
+                        if (yMax > Main.maxTilesY) yMax = Main.maxTilesY;
+                        
+                        for (int y = yMin; y < yMax; y++) {
+                            for (int x = xMin; x < xMax; x++) {
+                                Tile tile = Main.tile[x, y];
                                 if ((WiresUI.Settings.DrawWires || EntitySensorUIVisible()) && tile.active() && tile.type == TileType("EntitySensorTile") && tile.frameY == 0) {
                                     TileEntity tileEntity = default(TileEntity);
                                     
-                                    if (TileEntity.ByPosition.TryGetValue(new Point16(i, k), out tileEntity)) {
+                                    if (TileEntity.ByPosition.TryGetValue(new Point16(x, y), out tileEntity)) {
                                         TEEntitySensor es = tileEntity as TEEntitySensor;
-                                        Vector2 start = new Vector2((float)(i * 16 - 16 * es.left - 1), (float)(k * 16 - (16 * (es.top)) - 1)) + zero2;
-                                        Vector2 end = new Vector2((float)(i * 16 + 16 * (es.right + 1) + 1), (float)(k * 16 + 16 * (es.bottom + 1) + 1)) + zero2;
+                                        Vector2 start = new Vector2((float)(x * 16 - 16 * es.left - 1), (float)(y * 16 - (16 * (es.top)) - 1)) + zero2;
+                                        Vector2 end = new Vector2((float)(x * 16 + 16 * (es.right + 1) + 1), (float)(y * 16 + 16 * (es.bottom + 1) + 1)) + zero2;
                                         Utils.DrawRectangle(Main.spriteBatch, start, end, Microsoft.Xna.Framework.Color.LightSeaGreen, Microsoft.Xna.Framework.Color.LightSeaGreen, 2f);
                                     }
                                 }
@@ -1631,34 +1623,27 @@ namespace MoreMechanisms {
                 layers.Insert(wireIndex, new LegacyGameInterfaceLayer(
                     "MoreMechanisms: QuarryWire",
                     delegate {
-                        Vector2 zero2 = Vector2.Zero;
-                        int num21 = (int)((Main.screenPosition.X - zero2.X) / 16f - 1f);
-                        int num20 = (int)((Main.screenPosition.X + (float)Main.screenWidth + zero2.X) / 16f) + 2;
-                        int num19 = (int)((Main.screenPosition.Y - zero2.Y) / 16f - 1f);
-                        int num18 = (int)((Main.screenPosition.Y + (float)Main.screenHeight + zero2.Y) / 16f) + 5;
-                        if (num21 < 0) {
-                            num21 = 0;
-                        }
-                        if (num20 > Main.maxTilesX) {
-                            num20 = Main.maxTilesX;
-                        }
-                        if (num19 < 0) {
-                            num19 = 0;
-                        }
-                        if (num18 > Main.maxTilesY) {
-                            num18 = Main.maxTilesY;
-                        }
-                        for (int k = num19; k < num18; k++) {
-                            for (int i = num21; i < num20; i++) {
-                                Tile tile = Main.tile[i, k];
+                        int xMin = (int)((Main.screenPosition.X) / 16f - 1f);
+                        int xMax = (int)((Main.screenPosition.X + (float)Main.screenWidth) / 16f) + 2;
+                        int yMin = (int)((Main.screenPosition.Y) / 16f - 1f);
+                        int yMax = (int)((Main.screenPosition.Y + (float)Main.screenHeight) / 16f) + 5;
+
+                        if (xMin < 0) xMin = 0;
+                        if (xMax > Main.maxTilesX) xMax = Main.maxTilesX;
+                        if (yMin < 0) yMin = 0;
+                        if (yMax > Main.maxTilesY) yMax = Main.maxTilesY;
+
+                        for (int y = yMin; y < yMax; y++) {
+                            for (int x = xMin; x < xMax; x++) {
+                                Tile tile = Main.tile[x, y];
                                 if ((WiresUI.Settings.DrawWires || QuarryUIVisible()) && tile.active() && tile.type == TileType("QuarryTile") && tile.frameX == 0 && tile.frameY == 0) {
                                     TileEntity tileEntity = default(TileEntity);
                                     
-                                    if (TileEntity.ByPosition.TryGetValue(new Point16(i, k), out tileEntity)) {
+                                    if (TileEntity.ByPosition.TryGetValue(new Point16(x, y), out tileEntity)) {
                                         TEQuarry es = tileEntity as TEQuarry;
                                         if (es.hasFrame) {
-                                            Vector2 start = new Vector2((float)(i * 16 - 16 * (es.left - 1) - 8), (float)(k * 16 - (16 * (es.top - 1))) - 8) + zero2;
-                                            Vector2 end = new Vector2((float)(i * 16 + 16 * (es.right + 1) - 8), (float)(k * 16 + 16 * (es.bottom) + 1 + 8)) + zero2;
+                                            Vector2 start = new Vector2((float)(x * 16 - 16 * (es.left - 1) - 8), (float)(y * 16 - (16 * (es.top - 1))) - 8) + zero2;
+                                            Vector2 end = new Vector2((float)(x * 16 + 16 * (es.right + 1) - 8), (float)(y * 16 + 16 * (es.bottom) + 1 + 8)) + zero2;
                                             Color col = Microsoft.Xna.Framework.Color.Yellow;
                                             Utils.DrawRectangle(Main.spriteBatch, start, end, col, col, 2f);
                                         }
@@ -1673,35 +1658,27 @@ namespace MoreMechanisms {
                 layers.Insert(wireIndex, new LegacyGameInterfaceLayer(
                     "MoreMechanisms: TurretWire",
                     delegate {
-                        Vector2 zero2 = Vector2.Zero;
-                        int num21 = (int)((Main.screenPosition.X - zero2.X) / 16f - 1f);
-                        int num20 = (int)((Main.screenPosition.X + (float)Main.screenWidth + zero2.X) / 16f) + 2;
-                        int num19 = (int)((Main.screenPosition.Y - zero2.Y) / 16f - 1f);
-                        int num18 = (int)((Main.screenPosition.Y + (float)Main.screenHeight + zero2.Y) / 16f) + 5;
-                        if (num21 < 0) {
-                            num21 = 0;
-                        }
-                        if (num20 > Main.maxTilesX) {
-                            num20 = Main.maxTilesX;
-                        }
-                        if (num19 < 0) {
-                            num19 = 0;
-                        }
-                        if (num18 > Main.maxTilesY) {
-                            num18 = Main.maxTilesY;
-                        }
+                        int xMin = (int)((Main.screenPosition.X) / 16f - 1f);
+                        int xMax = (int)((Main.screenPosition.X + (float)Main.screenWidth) / 16f) + 2;
+                        int yMin = (int)((Main.screenPosition.Y) / 16f - 1f);
+                        int yMax = (int)((Main.screenPosition.Y + (float)Main.screenHeight) / 16f) + 5;
 
-                        for (int k = num19; k < num18; k++) {
-                            for (int i = num21; i < num20; i++) {
-                                Tile tile = Main.tile[i, k];
+                        if (xMin < 0) xMin = 0;
+                        if (xMax > Main.maxTilesX) xMax = Main.maxTilesX;
+                        if (yMin < 0) yMin = 0;
+                        if (yMax > Main.maxTilesY) yMax = Main.maxTilesY;
+
+                        for (int y = yMin; y < yMax; y++) {
+                            for (int x = xMin; x < xMax; x++) {
+                                Tile tile = Main.tile[x, y];
                                 if ((WiresUI.Settings.DrawWires || TurretUIVisible()) && tile.active() && tile.type == TileType("TurretTile") && (tile.frameX % 36) == 0 && (tile.frameY % 36) == 0) {
                                     TileEntity tileEntity = default(TileEntity);
 
-                                    if (TileEntity.ByPosition.TryGetValue(new Point16(i, k), out tileEntity)) {
+                                    if (TileEntity.ByPosition.TryGetValue(new Point16(x, y), out tileEntity)) {
                                         TETurret es = tileEntity as TETurret;
 
                                         if(es.circle == null) es.circle = Util.CreateCircle(es.range);
-                                        Main.spriteBatch.Draw(es.circle, new Vector2(i * 16 + 16, k * 16 + 16) - Main.screenPosition - es.circle.Size() / 2, Color.Red);
+                                        Main.spriteBatch.Draw(es.circle, new Vector2(x * 16 + 16, y * 16 + 16) - Main.screenPosition - es.circle.Size() / 2, Color.Red);
                                     }
                                 }
                             }
@@ -1713,35 +1690,27 @@ namespace MoreMechanisms {
                 layers.Insert(wireIndex, new LegacyGameInterfaceLayer(
                     "MoreMechanisms: VacuumWire",
                     delegate {
-                        Vector2 zero2 = Vector2.Zero;
-                        int num21 = (int)((Main.screenPosition.X - zero2.X) / 16f - 1f);
-                        int num20 = (int)((Main.screenPosition.X + (float)Main.screenWidth + zero2.X) / 16f) + 2;
-                        int num19 = (int)((Main.screenPosition.Y - zero2.Y) / 16f - 1f);
-                        int num18 = (int)((Main.screenPosition.Y + (float)Main.screenHeight + zero2.Y) / 16f) + 5;
-                        if (num21 < 0) {
-                            num21 = 0;
-                        }
-                        if (num20 > Main.maxTilesX) {
-                            num20 = Main.maxTilesX;
-                        }
-                        if (num19 < 0) {
-                            num19 = 0;
-                        }
-                        if (num18 > Main.maxTilesY) {
-                            num18 = Main.maxTilesY;
-                        }
+                        int xMin = (int)((Main.screenPosition.X) / 16f - 1f);
+                        int xMax = (int)((Main.screenPosition.X + (float)Main.screenWidth) / 16f) + 2;
+                        int yMin = (int)((Main.screenPosition.Y) / 16f - 1f);
+                        int yMax = (int)((Main.screenPosition.Y + (float)Main.screenHeight) / 16f) + 5;
 
-                        for (int k = num19; k < num18; k++) {
-                            for (int i = num21; i < num20; i++) {
-                                Tile tile = Main.tile[i, k];
+                        if (xMin < 0) xMin = 0;
+                        if (xMax > Main.maxTilesX) xMax = Main.maxTilesX;
+                        if (yMin < 0) yMin = 0;
+                        if (yMax > Main.maxTilesY) yMax = Main.maxTilesY;
+
+                        for (int y = yMin; y < yMax; y++) {
+                            for (int x = xMin; x < xMax; x++) {
+                                Tile tile = Main.tile[x, y];
                                 if (WiresUI.Settings.DrawWires && tile.active() && tile.type == TileType("VacuumTile") && (tile.frameX % 36) == 0 && (tile.frameY % 36) == 0) {
                                     TileEntity tileEntity = default(TileEntity);
 
-                                    if (TileEntity.ByPosition.TryGetValue(new Point16(i, k), out tileEntity)) {
+                                    if (TileEntity.ByPosition.TryGetValue(new Point16(x, y), out tileEntity)) {
                                         TEVacuum es = tileEntity as TEVacuum;
 
                                         if (es.circle == null) es.circle = Util.CreateCircle(es.range);
-                                        Main.spriteBatch.Draw(es.circle, new Vector2(i * 16 + 8, k * 16 + 8) - Main.screenPosition - es.circle.Size() / 2, Color.Yellow);
+                                        Main.spriteBatch.Draw(es.circle, new Vector2(x * 16 + 8, y * 16 + 8) - Main.screenPosition - es.circle.Size() / 2, Color.Yellow);
                                     }
                                 }
                             }
@@ -1938,9 +1907,9 @@ namespace MoreMechanisms {
 
                 DynamicSpriteFontExtensionMethods.DrawString(Main.spriteBatch, Main.fontMouseText, "Mechanisms", new Vector2(532f + 36f + 36f / 2, 84f), new Microsoft.Xna.Framework.Color(Main.mouseTextColor, Main.mouseTextColor, Main.mouseTextColor, Main.mouseTextColor), 0f, default(Vector2), 0.75f, SpriteEffects.None, 0f);
                 for (int i = 0; i < mechanismSlots.Length; i++) {
-                    int num20 = 534 + 36;
-                    int num19 = (int)(85f + (float)((i % 4) * 56) * 0.6f + 20f);
-                    mechanismSlots[i].relativePos = new Vector2(num20 + (int)(i / 4) * 36, num19);
+                    int xPos = 534 + 36;
+                    int yPos = (int)(85f + (float)((i % 4) * 56) * 0.6f + 20f);
+                    mechanismSlots[i].relativePos = new Vector2(xPos + (int)(i / 4) * 36, yPos);
                     mechanismSlots[i].DrawSlot(spriteBatch);
                 }
             }
