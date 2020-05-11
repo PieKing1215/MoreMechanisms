@@ -30,6 +30,7 @@ using static Terraria.ModLoader.ModContent;
     auto crafting tile
     
     way to copy paste item/entity filters
+      (maybe like factorio?)
 
     -- PARTIALLY IMPLEMENTED -- 
     
@@ -39,10 +40,9 @@ using static Terraria.ModLoader.ModContent;
       toggleable by wire
 
     itemducts: take items from inventories and push to others
-      maybe have separate connector piece
-      configure what items to take or push
-      integrate with magic storage
-      special pipes like filter or sorter
+      TODO: maybe change to separate connector piece and separate filter piece
+      filter what items to take or push
+      TODO: integrate with magic storage
 
     smart quarry which can selectively mine blocks or replace blocks
       make it so it has a small range on its own but you can build a frame to make it bigger
