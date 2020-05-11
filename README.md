@@ -21,6 +21,15 @@ Picks up dropped items which can be pulled into Itemducts.
 ### ![TurretItem.png](Items/TurretItem.png) Turret
 Automatically shoots enemies using bullets.
   
+### ![SellerItem.png](Items/SellerItem.png) Seller
+Automatically sells items placed inside.
+  
+### ![DropperItem.png](Items/DropperItem.png) Dropper
+Drops items into the world when activated.
+
+### ![DelayCircuitItem.png](Items/DelayCircuitItem.png) Delay Circuit
+When the left side is activated, activates the right side after a delay.
+  
 ### ![InvasionSensorItem.png](Items/InvasionSensorItem.png) Invasion Sensor
 Sends a signal when an invasion starts and ends.
   
