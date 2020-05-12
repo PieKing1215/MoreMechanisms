@@ -7,18 +7,20 @@ namespace MoreMechanisms {
         public override void SetupShop(int type, Chest shop, ref int nextSlot) {
             switch (type) {
                 case NPCID.Steampunker:
-                    //shop.item[nextSlot++].SetDefaults(mod.ItemType("SpeakerItem"));
-                    //shop.item[nextSlot++].SetDefaults(mod.ItemType("EntitySensorItem"));
-                    //shop.item[nextSlot++].SetDefaults(mod.ItemType("BloodMoonSensorItem"));
-                    //shop.item[nextSlot++].SetDefaults(mod.ItemType("SolarEclipseSensorItem"));
-                    //shop.item[nextSlot++].SetDefaults(mod.ItemType("InvasionSensorItem"));
-                    //shop.item[nextSlot++].SetDefaults(mod.ItemType("ItemDuctItem"));
-                    //shop.item[nextSlot++].SetDefaults(mod.ItemType("QuarryItem"));
-                    //shop.item[nextSlot++].SetDefaults(mod.ItemType("QuarryScaffoldItem"));
+                    //shop.item[nextSlot++].SetDefaults(mod.ItemType("EntitySensorItem")); // crafted
                     shop.item[nextSlot++].SetDefaults(mod.ItemType("VacuumItem"));
-                    shop.item[nextSlot++].SetDefaults(mod.ItemType("TurretItem"));
-                    shop.item[nextSlot++].SetDefaults(mod.ItemType("DelayCircuitItem"));
                     shop.item[nextSlot++].SetDefaults(mod.ItemType("SellerItem"));
+                    shop.item[nextSlot++].SetDefaults(mod.ItemType("QuarryItem"));
+                    shop.item[nextSlot++].SetDefaults(mod.ItemType("QuarryScaffoldItem"));
+                    break;
+                case NPCID.Mechanic:
+                    shop.item[nextSlot++].SetDefaults(mod.ItemType("DelayCircuitItem")); // will be crafted
+                    shop.item[nextSlot++].SetDefaults(mod.ItemType("SpeakerItem"));
+                    shop.item[nextSlot++].SetDefaults(mod.ItemType("BloodMoonSensorItem"));
+                    if (NPC.downedMechBossAny) shop.item[nextSlot++].SetDefaults(mod.ItemType("SolarEclipseSensorItem"));
+                    if (NPC.downedGoblins) shop.item[nextSlot++].SetDefaults(mod.ItemType("InvasionSensorItem"));
+                    if (NPC.AnyNPCs(NPCID.ArmsDealer)) shop.item[nextSlot++].SetDefaults(mod.ItemType("TurretItem"));
+                    shop.item[nextSlot++].SetDefaults(mod.ItemType("ItemDuctItem"));
                     shop.item[nextSlot++].SetDefaults(mod.ItemType("DropperItem"));
                     break;
             }
