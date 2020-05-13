@@ -530,7 +530,11 @@ namespace MoreMechanisms.Tiles {
                             if (!con[d]) continue;
 
                             float angle = new float[] { 0, 180, 270, 90 }[d];
+                            spriteBatch.End();
+                            spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Additive);
                             spriteBatch.Draw(texture, start - Main.screenPosition, new Rectangle(tfrX * 34, frY, 32, 32), lightCol, angle * (float)(Math.PI / 180), new Vector2(16, 16), 1f, SpriteEffects.None, 1f);
+                            spriteBatch.End();
+                            spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend);
 
                             if (d == 0) Util.DrawWorldTile(spriteBatch, oi, ok - 1, 12 * 16, 12 * 16);
                             if (d == 1) Util.DrawWorldTile(spriteBatch, oi, ok + 1, 12 * 16, 12 * 16);
@@ -541,7 +545,15 @@ namespace MoreMechanisms.Tiles {
                 }
             }
 
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Additive);
             return base.PreDraw(i, k, spriteBatch);
+        }
+
+        public override void PostDraw(int i, int j, SpriteBatch spriteBatch) {
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend);
+            base.PostDraw(i, j, spriteBatch);
         }
 
     }
