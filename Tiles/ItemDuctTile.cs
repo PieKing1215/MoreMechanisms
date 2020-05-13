@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -77,7 +78,7 @@ namespace MoreMechanisms.Tiles {
                         int top = Position.Y + d.dy;
 
                         Tile tile = Framing.GetTileSafely(left, top);
-                        if (tile.active() && (Main.tileContainer[tile.type] || (tile.type == TileType<VacuumTile>()))) {
+                        if (SpecialConnects(tile)) {
 
                             if (tile.frameX % 36 != 0) {
                                 left--;
@@ -129,7 +130,7 @@ namespace MoreMechanisms.Tiles {
                         int top = Position.Y + d.dy;
 
                         Tile tile = Framing.GetTileSafely(left, top);
-                        if (tile.active() && Main.tileContainer[tile.type]) {
+                        if (SpecialConnects(tile)) {
 
                             if (tile.frameX % 36 != 0) {
                                 left--;
@@ -233,6 +234,23 @@ namespace MoreMechanisms.Tiles {
             }
         }
         
+        public bool SpecialConnects(Tile t) {
+
+            if (!t.active()) return false;
+
+            switch (this.ductType) {
+                case DuctType.In:
+                    return Main.tileContainer[t.type] || (t.type == TileType<VacuumTile>());
+                case DuctType.Out:
+                    return Main.tileContainer[t.type];
+                case DuctType.None:
+                default:
+                    break;
+            }
+
+            return false;
+        }
+
         public override void NetReceive(BinaryReader reader, bool lightReceive) {
             this.ductType = (DuctType)reader.ReadByte();
         }
@@ -272,8 +290,72 @@ namespace MoreMechanisms.Tiles {
         }
 
         public void UpdateFrame(int x, int y) {
-            Main.tile[x, y].frameX = (short)((byte)this.ductType * 18);
-            Main.tile[x, y].frameY = (short)(flowItems.Count > 0 ? 18 : 0);
+
+            int tfrX = 0;
+            int tfrY = 0;
+
+            // choose correct orientation
+            Tile uTile = Framing.GetTileSafely(x, y - 1);
+            Tile dTile = Framing.GetTileSafely(x, y + 1);
+            Tile lTile = Framing.GetTileSafely(x - 1, y);
+            Tile rTile = Framing.GetTileSafely(x + 1, y);
+            
+            bool uCon = uTile.type == mod.TileType("ItemDuctTile");
+            bool dCon = dTile.type == mod.TileType("ItemDuctTile");
+            bool lCon = lTile.type == mod.TileType("ItemDuctTile");
+            bool rCon = rTile.type == mod.TileType("ItemDuctTile");
+
+            int nCon = (uCon ? 1 : 0) + (dCon ? 1 : 0) + (lCon ? 1 : 0) + (rCon ? 1 : 0);
+
+            tfrY = nCon;
+            switch (nCon) {
+                case 0:
+                    // 0, 0
+                    break;
+                case 1:
+                    tfrX = (uCon ? 0 : (dCon ? 1 : (lCon ? 2 : 3)));
+                    break;
+                case 2:
+                    if(uCon && dCon) {
+                        tfrX = 0;
+                    }else if(lCon && rCon) {
+                        tfrX = 1;
+                    } else {
+                        tfrX = 2 + (dCon ? 2 : 0) + (rCon ? 1 : 0);
+                    }
+                    break;
+                case 3:
+                    tfrX = (!dCon ? 0 : (!uCon ? 1 : (!rCon ? 2 : 3)));
+                    break;
+                case 4:
+                    // 0, 4
+                    break;
+            }
+
+            // offset to get correct tileset
+
+            // tile type
+            switch (this.ductType) {
+                case DuctType.In:
+                    tfrY += 1 * 5;
+                    break;
+                case DuctType.Out:
+                    tfrY += 2 * 5;
+                    break;
+                case DuctType.None:
+                default:
+                    break;
+            }
+
+            // has item
+            if (flowItems.Count > 0) tfrX += 6;
+
+            // set frame
+            Main.tile[x, y].frameX = (short)(tfrX * 18);
+            Main.tile[x, y].frameY = (short)(tfrY * 18);
+
+            //Main.tile[x, y].frameX = (short)((byte)this.ductType * 18);
+            //Main.tile[x, y].frameY = (short)(flowItems.Count > 0 ? 18 : 0);
         }
 
         public override void OnKill() {
@@ -392,6 +474,74 @@ namespace MoreMechanisms.Tiles {
             }
             
             return false;
+        }
+        
+        public override bool PreDraw(int i, int k, SpriteBatch spriteBatch) {
+
+            Tile tile = Main.tile[i, k];
+            if (tile.active() && tile.type == mod.TileType("ItemDuctTile")) {
+                TileEntity tileEntity = default(TileEntity);
+
+                if (TileEntity.ByPosition.TryGetValue(new Point16(i, k), out tileEntity)) {
+                    TEItemDuct es = tileEntity as TEItemDuct;
+
+                    // draw connectors
+
+                    Tile uTile = Framing.GetTileSafely(i, k - 1);
+                    Tile dTile = Framing.GetTileSafely(i, k + 1);
+                    Tile lTile = Framing.GetTileSafely(i - 1, k);
+                    Tile rTile = Framing.GetTileSafely(i + 1, k);
+                    
+                    bool uCon = es.SpecialConnects(uTile);
+                    bool dCon = es.SpecialConnects(dTile);
+                    bool lCon = es.SpecialConnects(lTile);
+                    bool rCon = es.SpecialConnects(rTile);
+
+                    if (uCon || dCon || lCon || rCon) {
+                        bool[] con = new bool[] { uCon, dCon, lCon, rCon };
+
+                        Color lightCol = Lighting.GetColor(i, k);
+
+                        //TODO: why does the spritebatch seem to draw offset 12 tiles to the -x and -y?
+                        int oi = i;
+                        int ok = k;
+
+                        i += 12;
+                        k += 12;
+                        
+                        int tfrX = es.flowItems.Count > 0 ? 1 : 0;
+                        int frY = 0;
+
+                        switch (es.ductType) {
+                            case TEItemDuct.DuctType.In:
+                                frY = 15 * 18;
+                                break;
+                            case TEItemDuct.DuctType.Out:
+                                frY = 15 * 18 + 34;
+                                break;
+                            case TEItemDuct.DuctType.None:
+                            default:
+                                break;
+                        }
+
+                        Texture2D texture = (!Main.canDrawColorTile(tile.type, tile.color())) ? Main.tileTexture[tile.type] : Main.tileAltTexture[tile.type, tile.color()];
+                        Vector2 start = new Vector2((float)(i * 16 - (32 - 16) / 2 + 16), (float)(k * 16 - (32 - 16) / 2 + 16));
+                        for (int d = 0; d < con.Length; d++) {
+                            if (!con[d]) continue;
+
+                            float angle = new float[] { 0, 180, 270, 90 }[d];
+                            spriteBatch.Draw(texture, start - Main.screenPosition, new Rectangle(tfrX * 34, frY, 32, 32), lightCol, angle * (float)(Math.PI / 180), new Vector2(16, 16), 1f, SpriteEffects.None, 1f);
+
+                            if (d == 0) Util.DrawWorldTile(spriteBatch, oi, ok - 1, 12 * 16, 12 * 16);
+                            if (d == 1) Util.DrawWorldTile(spriteBatch, oi, ok + 1, 12 * 16, 12 * 16);
+                            if (d == 2) Util.DrawWorldTile(spriteBatch, oi - 1, ok, 12 * 16, 12 * 16);
+                            if (d == 3) Util.DrawWorldTile(spriteBatch, oi + 1, ok, 12 * 16, 12 * 16);
+                        }
+                    }
+                }
+            }
+
+            return base.PreDraw(i, k, spriteBatch);
         }
 
     }

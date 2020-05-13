@@ -429,5 +429,27 @@ namespace MoreMechanisms {
             Vector2 position = (new Vector2(tx * 16 - (int)Main.screenPosition.X + 8, ty * 16 - (int)Main.screenPosition.Y + 8)).Floor();
             spriteBatch.Draw(texture, position, new Rectangle(tile.frameX, tile.frameY, 16, 16), color, 0f, new Vector2(8f), 1f, SpriteEffects.None, 0f);
         }
+
+        /// <summary>
+        /// <para>Draws the Tile onto the provided SpriteBatch at the Tile's position in the world.</para>
+        /// </summary>
+        /// <param name="spriteBatch"></param>
+        /// <param name="tx"></param>
+        /// <param name="ty"></param>
+        /// <param name="ofsX"></param>
+        /// <param name="ofsY"></param>
+        public static void DrawWorldTile(SpriteBatch spriteBatch, int tx, int ty, int ofsX, int ofsY) {
+            Color color = Lighting.GetColor(tx, ty);
+            //color = Color.Red;
+            //byte a = color.A;
+            //color *= 0.8f;
+            //color.A = a;
+
+            Tile tile = Framing.GetTileSafely(tx, ty);
+            Texture2D texture = (!Main.canDrawColorTile(tile.type, tile.color())) ? Main.tileTexture[tile.type] : Main.tileAltTexture[tile.type, tile.color()];
+
+            Vector2 position = (new Vector2(tx * 16 - (int)Main.screenPosition.X + 8 + ofsX, ty * 16 - (int)Main.screenPosition.Y + 8 + ofsY)).Floor();
+            spriteBatch.Draw(texture, position, new Rectangle(tile.frameX, tile.frameY, 16, 16), color, 0f, new Vector2(8f), 1f, SpriteEffects.None, 0f);
+        }
     }
 }
