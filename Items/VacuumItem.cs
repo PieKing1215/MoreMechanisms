@@ -1,4 +1,6 @@
 ﻿using Terraria;
+using Terraria.DataStructures;
+using Terraria.ID;
 using Terraria.ModLoader;
 
 namespace MoreMechanisms.Items {
@@ -25,6 +27,11 @@ namespace MoreMechanisms.Items {
             item.placeStyle = 0;
             item.width = 12;
             item.height = 12;
+
+            //TODO: try to see if there's a way to make an animated placeable item not have the 
+            //      graphical bug where it displays the whole sheet on the cursor
+            //Main.RegisterItemAnimation(item.type, new DrawAnimationVertical(10, 4));
+
             // Set other item.X values here
         }
 

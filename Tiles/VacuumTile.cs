@@ -166,6 +166,17 @@ namespace MoreMechanisms.Tiles {
             base.KillTile(i, j, ref fail, ref effectOnly, ref noItem);
             GetInstance<TEVacuum>().Kill(i, j);
         }
-        
+
+        public override void DrawEffects(int i, int j, SpriteBatch spriteBatch, ref Color drawColor, ref int nextSpecialDrawIndex) {
+            base.DrawEffects(i, j, spriteBatch, ref drawColor, ref nextSpecialDrawIndex);
+
+            if(Main.rand.Next(10) == 0) {
+                Vector2 pos = new Vector2(i * 16 + 8, j * 16 + 8);
+                int ppi = Dust.NewDust(pos + Main.rand.NextVector2CircularEdge(64, 64), 4, 4, DustID.Smoke);
+                Main.dust[ppi].velocity = (pos - Main.dust[ppi].position) / 40f;
+                Main.dust[ppi].alpha = 127;
+            }
+        }
+
     }
 }
