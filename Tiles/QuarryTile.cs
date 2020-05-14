@@ -182,17 +182,20 @@ namespace MoreMechanisms.Tiles {
             Reset();
             this.on = reader.ReadBoolean();
             this.pickaxe = reader.ReadItem();
+            this.filter = ItemFilter.Read(reader, lightReceive);
         }
 
         public override void NetSend(BinaryWriter writer, bool lightSend) {
             writer.Write(this.on);
             writer.WriteItem(pickaxe, true);
+            this.filter.Write(writer, lightSend);
         }
 
         public override TagCompound Save() {
             TagCompound cpd = new TagCompound();
             cpd.Add("on", this.on);
             if(pickaxe != null && !pickaxe.IsAir) cpd.Add("pickaxe", pickaxe);
+            cpd.Add("filter", this.filter);
             return cpd;
         }
 
@@ -201,6 +204,7 @@ namespace MoreMechanisms.Tiles {
             this.on = tag.Get<bool>("on");
             Item i = tag.Get<Item>("pickaxe");
             if (i != null) this.pickaxe = i;
+            if (tag.ContainsKey("filter")) this.filter = (ItemFilter)tag.Get<ItemFilter>("filter");
         }
 
         public override bool ValidTile(int i, int j) {
