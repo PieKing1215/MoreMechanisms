@@ -89,21 +89,49 @@ namespace MoreMechanisms.Tiles {
         
         public override void NetReceive(BinaryReader reader, bool lightReceive) {
             this.On = reader.ReadBoolean();
+            int nItems = reader.ReadInt32();
+            items = new List<Item>();
+            for(int i = 0; i < nItems; i++) {
+                Item it = reader.ReadItem();
+
+                if (it.type == ItemID.Count) {
+                    it = new Item();
+                    it.SetDefaults(0);
+                }
+
+                items.Add(it);
+            }
         }
 
         public override void NetSend(BinaryWriter writer, bool lightSend) {
             writer.Write(this.On);
+
+            writer.Write(this.items.Count);
+            for(int i = 0; i < this.items.Count; i++) {
+                writer.WriteItem(this.items[i]);
+            }
         }
 
         public override TagCompound Save() {
-            return new TagCompound
+            TagCompound tag = new TagCompound
             {
-                {"On", this.On}
+                {"On", this.On},
+                {"items", this.items }
             };
+            
+            return tag;
         }
 
         public override void Load(TagCompound tag) {
-            On = tag.Get<bool>("On");
+            this.On = tag.Get<bool>("On");
+            this.items = tag.Get<List<Item>>("items");
+
+            for (int i = 0; i < this.items.Count; i++) {
+                if (this.items[i].type == ItemID.Count) {
+                    this.items[i] = new Item();
+                    this.items[i].SetDefaults(0);
+                }
+            }
         }
 
         public override bool ValidTile(int i, int j) {
