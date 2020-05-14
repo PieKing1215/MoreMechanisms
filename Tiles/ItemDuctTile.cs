@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Terraria;
 using Terraria.DataStructures;
 using Terraria.Enums;
@@ -29,7 +30,7 @@ namespace MoreMechanisms.Tiles {
         public List<Tuple<Item, Direction>> addItems = new List<Tuple<Item, Direction>>();
         public static List<TEItemDuct> needUpdate = new List<TEItemDuct>();
 
-        internal ItemFilter filter = new ItemFilter(5);
+        internal ItemFilter filter = new ItemFilter(5, false);
 
         internal DuctType ductType = DuctType.None;
 
@@ -253,24 +254,100 @@ namespace MoreMechanisms.Tiles {
 
         public override void NetReceive(BinaryReader reader, bool lightReceive) {
             this.ductType = (DuctType)reader.ReadByte();
+            this.filter = ItemFilter.Read(reader, lightReceive);
+
+            flowItems = new List<Tuple<Item, Direction>>();
+            int nFlow = reader.ReadInt32();
+            for(int i = 0; i < nFlow; i++) {
+                flowItems.Add(Tuple.Create<Item, Direction>(reader.ReadItem(), Direction.DIRECTIONS[reader.ReadInt32()]));
+            }
+
+            addItems = new List<Tuple<Item, Direction>>();
+            int nAdd = reader.ReadInt32();
+            for (int i = 0; i < nAdd; i++) {
+                addItems.Add(Tuple.Create<Item, Direction>(reader.ReadItem(), Direction.DIRECTIONS[reader.ReadInt32()]));
+            }
+
+            removeItems = new List<Tuple<Item, Direction>>();
+            int nRemove = reader.ReadInt32();
+            for (int i = 0; i < nRemove; i++) {
+                removeItems.Add(Tuple.Create<Item, Direction>(reader.ReadItem(), Direction.DIRECTIONS[reader.ReadInt32()]));
+            }
+
         }
 
         public override void NetSend(BinaryWriter writer, bool lightSend) {
             writer.Write((byte)this.ductType);
+            this.filter.Write(writer, lightSend);
+
+            writer.Write(flowItems.Count);
+            for(int i = 0; i < flowItems.Count; i++) {
+                writer.WriteItem(flowItems[i].Item1);
+                writer.Write(Direction.DIRECTIONS.IndexOf(flowItems[i].Item2));
+            }
+
+            writer.Write(addItems.Count);
+            for (int i = 0; i < addItems.Count; i++) {
+                writer.WriteItem(addItems[i].Item1);
+                writer.Write(Direction.DIRECTIONS.IndexOf(addItems[i].Item2));
+            }
+
+            writer.Write(removeItems.Count);
+            for (int i = 0; i < removeItems.Count; i++) {
+                writer.WriteItem(removeItems[i].Item1);
+                writer.Write(Direction.DIRECTIONS.IndexOf(removeItems[i].Item2));
+            }
+
         }
 
         public override TagCompound Save() {
-            return new TagCompound
+            TagCompound tag = new TagCompound
             {
                 {"ductType", (byte)this.ductType}
             };
+
+            tag.Add("filter", this.filter);
+
+            List<TagCompound> flow = new List<TagCompound>();
+            for(int i = 0; i < flowItems.Count; i++) {
+                flow.Add(new TagCompound { { "item", flowItems[i].Item1 }, { "direction", Direction.DIRECTIONS.IndexOf(flowItems[i].Item2) } });
+            }
+            tag.Add("flowItems", flow);
+
+            List<TagCompound> add = new List<TagCompound>();
+            for (int i = 0; i < addItems.Count; i++) {
+                add.Add(new TagCompound { { "item", addItems[i].Item1 }, { "direction", Direction.DIRECTIONS.IndexOf(addItems[i].Item2) } });
+            }
+            tag.Add("addItems", add);
+
+            List<TagCompound> remove = new List<TagCompound>();
+            for (int i = 0; i < removeItems.Count; i++) {
+                remove.Add(new TagCompound { { "item", removeItems[i].Item1 }, { "direction", Direction.DIRECTIONS.IndexOf(removeItems[i].Item2) } });
+            }
+            tag.Add("removeItems", remove);
+
+            return tag;
         }
 
         public override void Load(TagCompound tag) {
             this.ductType = (DuctType)tag.Get<byte>("ductType");
-            
-            if (ductType == TEItemDuct.DuctType.None) filter.filterWhitelist = false; // blacklist
-            if (ductType == TEItemDuct.DuctType.Out)  filter.filterWhitelist = false; // blacklist
+            if(tag.ContainsKey("filter")) this.filter = (ItemFilter)tag.Get<ItemFilter>("filter");
+
+            if(tag.ContainsKey("flowItems")) this.flowItems = tag.GetList<TagCompound>("flowItems").Select((TagCompound t) => {
+                int d = t.Get<int>("direction");
+                return Tuple.Create<Item, Direction>(t.Get<Item>("item"), d == -1 ? Direction.NONE : Direction.DIRECTIONS[d]);
+            }).ToList();
+
+            if (tag.ContainsKey("addItems")) this.addItems = tag.GetList<TagCompound>("addItems").Select((TagCompound t) => {
+                int d = t.Get<int>("direction");
+                return Tuple.Create<Item, Direction>(t.Get<Item>("item"), d == -1 ? Direction.NONE : Direction.DIRECTIONS[d]);
+            }).ToList();
+
+            if (tag.ContainsKey("removeItems")) this.removeItems = tag.GetList<TagCompound>("removeItems").Select((TagCompound t) => {
+                int d = t.Get<int>("direction");
+                return Tuple.Create<Item, Direction>(t.Get<Item>("item"), d == -1 ? Direction.NONE : Direction.DIRECTIONS[d]);
+            }).ToList();
+
         }
 
         public override bool ValidTile(int i, int j) {
@@ -457,12 +534,15 @@ namespace MoreMechanisms.Tiles {
                 switch (ent.ductType) {
                     case TEItemDuct.DuctType.None:
                         ent.ductType = TEItemDuct.DuctType.In;
+                        if (ent.filter.IsEmpty()) ent.filter.filterWhitelist = true;
                         break;
                     case TEItemDuct.DuctType.In:
                         ent.ductType = TEItemDuct.DuctType.Out;
+                        if (ent.filter.IsEmpty()) ent.filter.filterWhitelist = false;
                         break;
                     case TEItemDuct.DuctType.Out:
                         ent.ductType = TEItemDuct.DuctType.None;
+                        if (ent.filter.IsEmpty()) ent.filter.filterWhitelist = false;
                         break;
                 }
 
