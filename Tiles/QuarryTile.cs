@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -16,6 +17,7 @@ namespace MoreMechanisms.Tiles {
     public class TEQuarry : ModTileEntity {
 
         internal bool on = false;
+        internal bool mined = false;
 
         internal bool changed = false;
 
@@ -126,8 +128,9 @@ namespace MoreMechanisms.Tiles {
         }
 
         public override void Update() {
+            mined = false;
 
-            if(Main.GameUpdateCount % 30 == 0) {
+            if (Main.GameUpdateCount % 30 == 0) {
                 UpdateFrame();
                 //Main.NewText("hasFrame = " + hasFrame);
             }
@@ -158,6 +161,7 @@ namespace MoreMechanisms.Tiles {
                                             i.instanced = true;
                                         }
                                     }
+                                    mined = true;
                                     goto BrokeBlock;
                                 }
                             }
@@ -232,6 +236,8 @@ namespace MoreMechanisms.Tiles {
             Main.tileLighted[Type] = true;
             Main.tileNoAttach[Type] = true;
 
+            animationFrameHeight = 54;
+
             TileID.Sets.HasOutlines[Type] = true;
 
             dustType = mod.DustType("Sparkle");
@@ -298,6 +304,48 @@ namespace MoreMechanisms.Tiles {
 
                 qe.on = !qe.on;
                 if(qe.on) Main.PlaySound(SoundID.Item23, left * 16, top * 16);
+            }
+        }
+
+        public override void DrawEffects(int i, int j, SpriteBatch spriteBatch, ref Color drawColor, ref int nextSpecialDrawIndex) {
+            base.DrawEffects(i, j, spriteBatch, ref drawColor, ref nextSpecialDrawIndex);
+
+            Tile tile = Main.tile[i, j];
+            int left = i - tile.frameX / 18;
+            int top = j - tile.frameY / 18;
+
+            int index = GetInstance<TEQuarry>().Find(left, top);
+            if (index != -1) {
+                TEQuarry qe = (TEQuarry)TileEntity.ByID[index];
+
+                if (qe.on && Main.rand.Next(10) == 0) {
+                    Vector2 pos = new Vector2(i * 16, j * 16);
+                    int ppi = Dust.NewDust(pos, 16, 16, DustID.Smoke);
+                    Main.dust[ppi].velocity = Main.rand.NextVector2Circular(0.5f, 0.5f);
+                    Main.dust[ppi].alpha = 127;
+                }
+
+                if (qe.mined && tile.frameX == 18 && (tile.frameY % (18 * 3)) == 0) {
+                    if (Main.rand.Next(1) == 0) {
+                        Vector2 pos = new Vector2(i * 16, j * 16);
+                        int ppi = Dust.NewDust(pos, 16, 4, DustID.Dirt);
+                        Main.dust[ppi].velocity = Main.rand.NextVector2Circular(0.5f, 0.5f) + new Vector2(0, -2);
+                        Main.dust[ppi].alpha = 127;
+                    }
+                }
+            }
+        }
+
+        public override void AnimateTile(ref int frame, ref int frameCounter) {
+            frameCounter++;
+            if (frameCounter > 5)  //this is the frames speed, the bigger is the value the slower are the frames
+            {
+                frameCounter = 0;
+                frame++;
+                if (frame > 13)   //this is where you add how may frames your spritesheet has but -1, so if it has 4 frames you put 3 etc.
+                {
+                    frame = 0;
+                }
             }
         }
 
