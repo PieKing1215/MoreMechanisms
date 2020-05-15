@@ -139,14 +139,31 @@ namespace MoreMechanisms.Tiles {
                             if (tile.frameY != 0) {
                                 top--;
                             }
-
-                            int fch = Chest.FindChest(left, top);
+                            
+                            int fch = (tile.type == TileType<TurretTile>()) ? 0 : Chest.FindChest(left, top);
                             if (fch != -1) {
+                                Item[] items = new Item[0];
+                                Func<Item, bool> validItemFunc = (Item i) => true;
+
+                                if ((tile.type == TileType<TurretTile>())) {
+                                    int index = GetInstance<TETurret>().Find(left, top);
+                                    if (index != -1) {
+                                        TETurret ent = (TETurret)TileEntity.ByID[index];
+                                        items = new Item[] { ent.bullets };
+                                        validItemFunc = (Item it) => {
+                                            return it.IsAir || (!it.notAmmo && it.ammo == AmmoID.Bullet);
+                                        };
+                                    }
+                                } else {
+                                    items = Main.chest[fch].item;
+                                }
+
                                 Chest ch = Main.chest[fch];
                                 //Main.NewText("out searching chest");
                                 foreach (Tuple<Item, Direction> it in flowItems) {
+                                    if (!validItemFunc(it.Item1)) continue;
                                     bool putItem = false;
-                                    foreach (Item i in ch.item) {
+                                    foreach (Item i in items) {
                                         if (i.active && i.type != 0) {
                                             if(i.stack < i.maxStack) {
                                                 if(it.Item1.type == i.type) {
@@ -161,14 +178,25 @@ namespace MoreMechanisms.Tiles {
                                     }
                                     //Main.NewText("out no stack");
                                     if (!putItem) {
-                                        for (int ind = 0; ind < ch.item.Length; ind++) {
-                                            Item i = ch.item[ind];
+                                        for (int ind = 0; ind < items.Length; ind++) {
+                                            Item i = items[ind];
                                             if (i.IsAir) {
                                                 //Main.NewText("out put");
-                                                ch.item[ind] = it.Item1;
+                                                items[ind] = it.Item1;
                                                 removeItems.Add(it);
                                                 putItem = true;
                                                 break;
+                                            }
+                                        }
+                                    }
+
+                                    if (putItem && (tile.type == TileType<TurretTile>())) {
+                                        int index = GetInstance<TETurret>().Find(left, top);
+                                        if (index != -1) {
+                                            TETurret ent = (TETurret)TileEntity.ByID[index];
+                                            ent.bullets = items[0];
+                                            if (MoreMechanisms.instance.TurretUIVisible()) {
+                                                MoreMechanisms.instance.turretUIState.SetItem(ent.bullets);
                                             }
                                         }
                                     }
@@ -243,7 +271,7 @@ namespace MoreMechanisms.Tiles {
                 case DuctType.In:
                     return Main.tileContainer[t.type] || (t.type == TileType<VacuumTile>());
                 case DuctType.Out:
-                    return Main.tileContainer[t.type];
+                    return Main.tileContainer[t.type] || (t.type == TileType<TurretTile>());
                 case DuctType.None:
                 default:
                     break;

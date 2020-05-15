@@ -63,8 +63,9 @@ namespace ExampleMod.UI {
 				if (ValidItemFunc == null || ValidItemFunc(Main.mouseItem)) {
                     // Handle handles all the click and hover actions based on the context.
                     Item it = Item;
+                    int st = it.stack;
 					if(!filterStyle) ItemSlot.Handle(ref Item, _context);
-                    if (Item != it && OnSetItem != null) OnSetItem();
+                    if ((Item != it || Item.stack != st) && OnSetItem != null) OnSetItem();
 				}
 			}
             // Draw draws the slot itself and Item. Depending on context, the color will change, as will drawing other things like stack counts.

@@ -91,6 +91,18 @@ namespace MoreMechanisms.Tiles {
                     Main.PlaySound(SoundID.Item11.WithVolume(0.8f), pos);
                     Projectile.NewProjectile(pos, dir, bullets.shoot, damage + bullets.damage, bullets.knockBack, bullets.owner);
 
+                    if (bullets.stack > 1) {
+                        bullets.stack--;
+                        if (MoreMechanisms.instance.TurretUIVisible()) {
+                            MoreMechanisms.instance.turretUIState.UpdateTooltip();
+                        }
+                    } else {
+                        bullets.TurnToAir();
+                        if (MoreMechanisms.instance.TurretUIVisible()) {
+                            MoreMechanisms.instance.turretUIState.UpdateTooltip();
+                        }
+                    }
+
                     shootCooldown = shootTime;
                 }
             }

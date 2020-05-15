@@ -1278,6 +1278,17 @@ namespace MoreMechanisms {
 
             Item item;
             Action<Item> callback;
+            VanillaItemSlotWrapper slot;
+
+            public void SetItem(Item item) {
+                this.item = item;
+                if(slot != null) slot.Item = item;
+                if (slot != null) slot.OnSetItem();
+            }
+
+            public void UpdateTooltip() {
+                if (slot != null) slot.OnSetItem();
+            }
 
             public void Load(Item item, Action<Item> callback) {
                 this.callback = callback;
@@ -1325,7 +1336,7 @@ namespace MoreMechanisms {
                 filterContainer.Append(filterText);
                 panel.Append(filterContainer);
 
-                VanillaItemSlotWrapper slot = new VanillaItemSlotWrapper(ItemSlot.Context.BankItem);
+                slot = new VanillaItemSlotWrapper(ItemSlot.Context.BankItem);
                 slot.ValidItemFunc = (Item it) => {
                     return it.IsAir || (!it.notAmmo && it.ammo == AmmoID.Bullet);
                 };
