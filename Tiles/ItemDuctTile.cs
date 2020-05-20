@@ -88,26 +88,17 @@ namespace MoreMechanisms.Tiles {
                                 top--;
                             }
 
-                            TileEntity te;
-                            bool ent = TileEntity.ByPosition.TryGetValue(new Point16(left, top), out te);
-                            int fch = (ent && te != null && te is IConnectable) ? 0 : Chest.FindChest(left, top);
-                            if (fch != -1) {
-                                Item[] items = new Item[0];
-                                Func<Item, bool> validItemFunc = (Item i) => true;
+                            IConnectable conn = Connectable.Find(left, top);
+                            if (conn != null) {
 
-                                if ((ent && te != null && te is IConnectable)) {
-                                    IConnectable conn = te as IConnectable;
-                                    items = conn.GetItems(ConnectableType.Input);
-                                    validItemFunc = (Item it) => {
-                                        return conn.Accepts(it, ConnectableType.Input);
-                                    };
-                                } else {
-                                    items = Main.chest[fch].item;
-                                }
+                                Item[] items = conn.GetItems(ConnectableType.Input);
+                                Func<Item, bool> validItemFunc = (Item it) => {
+                                    return conn.Accepts(it, ConnectableType.Input);
+                                };
 
                                 for (int ind = 0; ind < items.Length; ind++) {
                                     Item i = items[ind];
-                                    if (i.active && i.type != 0 && filter.FilterAccepts(i)) {
+                                    if (i.active && i.type != ItemID.None && filter.FilterAccepts(i)) {
                                         if ((flowItems.Count + addItems.Count) < 4) {
                                             Item it = i.Clone();
                                             it.stack = 1;
@@ -118,11 +109,8 @@ namespace MoreMechanisms.Tiles {
                                             } else {
                                                 i.TurnToAir();
                                             }
-
-                                            if ((te != null && te is IConnectable)) {
-                                                IConnectable conn = te as IConnectable;
-                                                conn.TransferredItem(i, ind, ConnectableType.Input);
-                                            }
+                                            
+                                            conn.TransferredItem(i, ind, ConnectableType.Input);
 
                                             break;
                                         }
@@ -149,24 +137,15 @@ namespace MoreMechanisms.Tiles {
                             if (tile.frameY != 0) {
                                 top--;
                             }
+                            
+                            IConnectable conn = Connectable.Find(left, top);
+                            if (conn != null) {
 
-                            TileEntity te;
-                            bool ent = TileEntity.ByPosition.TryGetValue(new Point16(left, top), out te);
-                            int fch = (ent && te != null && te is IConnectable) ? 0 : Chest.FindChest(left, top);
-                            if (fch != -1) {
-                                Item[] items = new Item[0];
-                                Func<Item, bool> validItemFunc = (Item i) => true;
+                                Item[] items = conn.GetItems(ConnectableType.Output);
+                                Func<Item, bool> validItemFunc = (Item it) => {
+                                    return conn.Accepts(it, ConnectableType.Output);
+                                };
 
-                                if ((ent && te != null && te is IConnectable)) {
-                                    IConnectable conn = te as IConnectable;
-                                    items = conn.GetItems(ConnectableType.Output);
-                                    validItemFunc = (Item it) => {
-                                        return conn.Accepts(it, ConnectableType.Output);
-                                    };
-                                } else {
-                                    items = Main.chest[fch].item;
-                                }
-                                
                                 //Main.NewText("out searching chest");
                                 foreach (Tuple<Item, Direction> it in flowItems) {
                                     if (!validItemFunc(it.Item1)) continue;
@@ -202,8 +181,7 @@ namespace MoreMechanisms.Tiles {
                                         }
                                     }
 
-                                    if (putItem != -1 && newStack != null && (ent && te != null && te is IConnectable)) {
-                                        IConnectable conn = te as IConnectable;
+                                    if (putItem != -1 && newStack != null) {
                                         conn.TransferredItem(newStack, putItem, ConnectableType.Output);
                                     }
                                 }
@@ -279,20 +257,14 @@ namespace MoreMechanisms.Tiles {
             if (t.frameY != 0) {
                 y--;
             }
-
-
-            TileEntity te;
-            bool ent;
-            switch (this.ductType) {
-                case DuctType.In:
-                    ent = TileEntity.ByPosition.TryGetValue(new Point16(x, y), out te);
-                    return Main.tileContainer[t.type] || (ent && te != null && te is IConnectable && (te as IConnectable).GetItems(ConnectableType.Input) != null);
-                case DuctType.Out:
-                    ent = TileEntity.ByPosition.TryGetValue(new Point16(x, y), out te);
-                    return Main.tileContainer[t.type] || (ent && te != null && te is IConnectable && (te as IConnectable).GetItems(ConnectableType.Output) != null);
-                case DuctType.None:
-                default:
-                    break;
+            
+            if(this.ductType == DuctType.None) {
+                return false;
+            } else {
+                IConnectable conn = Connectable.Find(x, y);
+                if (conn != null) {
+                    return conn.GetItems(this.ductType == DuctType.In ? ConnectableType.Input : ConnectableType.Output) != null;
+                }
             }
 
             return false;
