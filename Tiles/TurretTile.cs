@@ -15,7 +15,7 @@ using static Terraria.ModLoader.ModContent;
 
 namespace MoreMechanisms.Tiles {
 
-    public class TETurret : ModTileEntity {
+    public class TETurret : ModTileEntity, IConnectable {
 
         internal int range = 20 * 16;
         internal int damage = 20;
@@ -160,6 +160,31 @@ namespace MoreMechanisms.Tiles {
             base.OnKill();
             if (bullets != null) {
                 Item.NewItem(Position.X * 16, Position.Y * 16, 1, 1, bullets.type, bullets.stack, false, bullets.prefix, false, false);
+            }
+        }
+
+        public Item[] GetItems(ConnectableType type) {
+            if(type == ConnectableType.Output) {
+                return new Item[] { bullets };
+            }
+
+            return null;
+        }
+
+        public bool Accepts(Item item, ConnectableType type) {
+            if(type == ConnectableType.Output) {
+                return item.IsAir || (!item.notAmmo && item.ammo == AmmoID.Bullet);
+            }
+
+            return false;
+        }
+
+        public void TransferredItem(Item transferred, int index, ConnectableType type) {
+            if (type == ConnectableType.Output) {
+                this.bullets = transferred;
+                if (MoreMechanisms.instance.TurretUIVisible()) {
+                    MoreMechanisms.instance.turretUIState.SetItem(this.bullets);
+                }
             }
         }
     }

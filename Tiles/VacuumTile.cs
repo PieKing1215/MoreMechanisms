@@ -13,7 +13,7 @@ using static Terraria.ModLoader.ModContent;
 
 namespace MoreMechanisms.Tiles {
 
-    public class TEVacuum : ModTileEntity {
+    public class TEVacuum : ModTileEntity, IConnectable {
         
         public bool On = false;
         
@@ -159,6 +159,23 @@ namespace MoreMechanisms.Tiles {
             }
         }
 
+        public Item[] GetItems(ConnectableType type) {
+            if(type == ConnectableType.Input) {
+                return this.items.ToArray();
+            }
+            return null;
+        }
+
+        public bool Accepts(Item item, ConnectableType type) {
+            if (type == ConnectableType.Input) {
+                return true;
+            }
+            return false;
+        }
+
+        public void TransferredItem(Item transferred, int index, ConnectableType type) {
+            
+        }
     }
 
     public class VacuumTile : ModTile {

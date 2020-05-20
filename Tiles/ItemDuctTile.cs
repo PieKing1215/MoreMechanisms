@@ -79,8 +79,8 @@ namespace MoreMechanisms.Tiles {
                         int top = Position.Y + d.dy;
 
                         Tile tile = Framing.GetTileSafely(left, top);
-                        if (SpecialConnects(tile)) {
 
+                        if (SpecialConnects(tile, left, top)) {
                             if (tile.frameX % 36 != 0) {
                                 left--;
                             }
@@ -88,21 +88,25 @@ namespace MoreMechanisms.Tiles {
                                 top--;
                             }
 
-                            int fch = (tile.type == TileType<VacuumTile>()) ? 0 : Chest.FindChest(left, top);
-                            if(fch != -1) {
+                            TileEntity te;
+                            bool ent = TileEntity.ByPosition.TryGetValue(new Point16(left, top), out te);
+                            int fch = (ent && te != null && te is IConnectable) ? 0 : Chest.FindChest(left, top);
+                            if (fch != -1) {
                                 Item[] items = new Item[0];
+                                Func<Item, bool> validItemFunc = (Item i) => true;
 
-                                if ((tile.type == TileType<VacuumTile>())) {
-                                    int index = GetInstance<TEVacuum>().Find(left, top);
-                                    if (index != -1) {
-                                        TEVacuum ent = (TEVacuum)TileEntity.ByID[index];
-                                        items = ent.items.ToArray();
-                                    }
+                                if ((ent && te != null && te is IConnectable)) {
+                                    IConnectable conn = te as IConnectable;
+                                    items = conn.GetItems(ConnectableType.Input);
+                                    validItemFunc = (Item it) => {
+                                        return conn.Accepts(it, ConnectableType.Input);
+                                    };
                                 } else {
                                     items = Main.chest[fch].item;
                                 }
 
-                                foreach (Item i in items) {
+                                for (int ind = 0; ind < items.Length; ind++) {
+                                    Item i = items[ind];
                                     if (i.active && i.type != 0 && filter.FilterAccepts(i)) {
                                         if ((flowItems.Count + addItems.Count) < 4) {
                                             Item it = i.Clone();
@@ -114,6 +118,12 @@ namespace MoreMechanisms.Tiles {
                                             } else {
                                                 i.TurnToAir();
                                             }
+
+                                            if ((te != null && te is IConnectable)) {
+                                                IConnectable conn = te as IConnectable;
+                                                conn.TransferredItem(i, ind, ConnectableType.Input);
+                                            }
+
                                             break;
                                         }
                                     }
@@ -131,74 +141,70 @@ namespace MoreMechanisms.Tiles {
                         int top = Position.Y + d.dy;
 
                         Tile tile = Framing.GetTileSafely(left, top);
-                        if (SpecialConnects(tile)) {
 
+                        if (SpecialConnects(tile, left, top)) {
                             if (tile.frameX % 36 != 0) {
                                 left--;
                             }
                             if (tile.frameY != 0) {
                                 top--;
                             }
-                            
-                            int fch = (tile.type == TileType<TurretTile>()) ? 0 : Chest.FindChest(left, top);
+
+                            TileEntity te;
+                            bool ent = TileEntity.ByPosition.TryGetValue(new Point16(left, top), out te);
+                            int fch = (ent && te != null && te is IConnectable) ? 0 : Chest.FindChest(left, top);
                             if (fch != -1) {
                                 Item[] items = new Item[0];
                                 Func<Item, bool> validItemFunc = (Item i) => true;
 
-                                if ((tile.type == TileType<TurretTile>())) {
-                                    int index = GetInstance<TETurret>().Find(left, top);
-                                    if (index != -1) {
-                                        TETurret ent = (TETurret)TileEntity.ByID[index];
-                                        items = new Item[] { ent.bullets };
-                                        validItemFunc = (Item it) => {
-                                            return it.IsAir || (!it.notAmmo && it.ammo == AmmoID.Bullet);
-                                        };
-                                    }
+                                if ((ent && te != null && te is IConnectable)) {
+                                    IConnectable conn = te as IConnectable;
+                                    items = conn.GetItems(ConnectableType.Output);
+                                    validItemFunc = (Item it) => {
+                                        return conn.Accepts(it, ConnectableType.Output);
+                                    };
                                 } else {
                                     items = Main.chest[fch].item;
                                 }
-
-                                Chest ch = Main.chest[fch];
+                                
                                 //Main.NewText("out searching chest");
                                 foreach (Tuple<Item, Direction> it in flowItems) {
                                     if (!validItemFunc(it.Item1)) continue;
-                                    bool putItem = false;
-                                    foreach (Item i in items) {
+                                    int putItem = -1;
+                                    Item newStack = null;
+                                    for (int ind = 0; ind < items.Length; ind++) {
+                                        Item i = items[ind];
                                         if (i.active && i.type != 0) {
                                             if(i.stack < i.maxStack) {
                                                 if(it.Item1.type == i.type) {
                                                     //Main.NewText("out found stack");
                                                     i.stack++;
                                                     removeItems.Add(it);
-                                                    putItem = true;
+                                                    putItem = ind;
+                                                    newStack = i;
                                                     break;
                                                 }
                                             }
                                         }
                                     }
                                     //Main.NewText("out no stack");
-                                    if (!putItem) {
+                                    if (putItem == -1) {
                                         for (int ind = 0; ind < items.Length; ind++) {
                                             Item i = items[ind];
                                             if (i.IsAir) {
                                                 //Main.NewText("out put");
                                                 items[ind] = it.Item1;
                                                 removeItems.Add(it);
-                                                putItem = true;
+                                                putItem = ind;
+                                                newStack = it.Item1;
                                                 break;
                                             }
                                         }
                                     }
 
-                                    if (putItem && (tile.type == TileType<TurretTile>())) {
-                                        int index = GetInstance<TETurret>().Find(left, top);
-                                        if (index != -1) {
-                                            TETurret ent = (TETurret)TileEntity.ByID[index];
-                                            ent.bullets = items[0];
-                                            if (MoreMechanisms.instance.TurretUIVisible()) {
-                                                MoreMechanisms.instance.turretUIState.SetItem(ent.bullets);
-                                            }
-                                        }
+                                    if (putItem != -1 && newStack != null && (ent && te != null && te is IConnectable)) {
+                                        IConnectable conn = te as IConnectable;
+                                        conn.TransferredItem(newStack, putItem, ConnectableType.Output);
                                     }
                                 }
                             }
@@ -263,15 +269,27 @@ namespace MoreMechanisms.Tiles {
             }
         }
         
-        public bool SpecialConnects(Tile t) {
+        public bool SpecialConnects(Tile t, int x, int y) {
 
             if (!t.active()) return false;
 
+            if (t.frameX % 36 != 0) {
+                x--;
+            }
+            if (t.frameY != 0) {
+                y--;
+            }
+
+
+            TileEntity te;
+            bool ent;
             switch (this.ductType) {
                 case DuctType.In:
-                    return Main.tileContainer[t.type] || (t.type == TileType<VacuumTile>());
+                    ent = TileEntity.ByPosition.TryGetValue(new Point16(x, y), out te);
+                    return Main.tileContainer[t.type] || (ent && te != null && te is IConnectable && (te as IConnectable).GetItems(ConnectableType.Input) != null);
                 case DuctType.Out:
-                    return Main.tileContainer[t.type] || (t.type == TileType<TurretTile>());
+                    ent = TileEntity.ByPosition.TryGetValue(new Point16(x, y), out te);
+                    return Main.tileContainer[t.type] || (ent && te != null && te is IConnectable && (te as IConnectable).GetItems(ConnectableType.Output) != null);
                 case DuctType.None:
                 default:
                     break;
@@ -600,10 +618,10 @@ namespace MoreMechanisms.Tiles {
                     Tile lTile = Framing.GetTileSafely(i - 1, k);
                     Tile rTile = Framing.GetTileSafely(i + 1, k);
                     
-                    bool uCon = es.SpecialConnects(uTile);
-                    bool dCon = es.SpecialConnects(dTile);
-                    bool lCon = es.SpecialConnects(lTile);
-                    bool rCon = es.SpecialConnects(rTile);
+                    bool uCon = es.SpecialConnects(uTile, i, k - 1);
+                    bool dCon = es.SpecialConnects(dTile, i, k + 1);
+                    bool lCon = es.SpecialConnects(lTile, i - 1, k);
+                    bool rCon = es.SpecialConnects(rTile, i + 1, k);
 
                     if (uCon || dCon || lCon || rCon) {
                         bool[] con = new bool[] { uCon, dCon, lCon, rCon };
