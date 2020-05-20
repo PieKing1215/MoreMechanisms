@@ -2,7 +2,7 @@
 ![icon.png](icon.png)<br>
 Terraria mod that adds more mechanisms and sensors.
 
-Currently tested with Terraria v1.3.5.2, [tModLoader](https://github.com/tModLoader/tModLoader/) v0.11.6.2.<br>
+Currently tested with Terraria v1.3.5.3, [tModLoader](https://github.com/tModLoader/tModLoader/) v0.11.7.1.<br>
 Once tModLoader updates for 1.4, this mod will target 1.4.
 See the [Releases](https://github.com/PieKing1215/MoreMechanisms/releases) tab for builds.
 
