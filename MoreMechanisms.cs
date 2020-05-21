@@ -21,7 +21,19 @@ using Terraria.ModLoader.IO;
 using Terraria.UI;
 using static Terraria.ModLoader.ModContent;
 
-/*  -- IDEAS --
+/*  
+    -- TODO: 1.4 ADDITIONS --
+    add rain/storm/sandstorm sensors
+    add kite category to entity sensor
+    add golf ball category to entity sensor
+    add block that only collides with golf ball (not sure if possible?)
+
+    -- IDEAS --
+
+    spotlight
+      points at enemies/projectiles and makes a light on them
+      targets nearest enemy not already targeted by another spotlight
+      
     counter
     configurable timer
     forcefields
@@ -35,6 +47,7 @@ using static Terraria.ModLoader.ModContent;
     -- PARTIALLY IMPLEMENTED -- 
     
     delay block
+      TODO: edit delay in ui
 
     vacuum (hopper): suck items from world into inventory
       toggleable by wire
@@ -58,7 +71,8 @@ using static Terraria.ModLoader.ModContent;
     
     item dropping tile
 
-    grand design upgrade with dedicated inventory slots and the right click menu having extra buttons for mechanisms
+    grand design upgrade with dedicated inventory slots and
+      TODO: the right click menu having extra buttons for mechanisms
 
      */
 
